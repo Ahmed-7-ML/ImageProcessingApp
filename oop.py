@@ -185,13 +185,13 @@ class ImageProcessor:
     def apply_morphological_operation(self, operation, gray, k_size):
         kernel = np.ones((k_size, k_size), np.uint8)
         if operation == "Dilation":
-            return cv2.dilate(self.gray, kernel, iterations=1)
+            return cv2.dilate(self.image_rgb, kernel, iterations=1)
         elif operation == "Erosion":
-            return cv2.erode(self.gray, kernel, iterations=1)
+            return cv2.erode(self.image_rgb, kernel, iterations=1)
         elif operation == "Open":
-            return cv2.morphologyEx(self.gray, cv2.MORPH_OPEN, kernel)
+            return cv2.morphologyEx(self.image_rgb, cv2.MORPH_OPEN, kernel)
         elif operation == "Close":
-            return cv2.morphologyEx(self.gray, cv2.MORPH_CLOSE, kernel)
+            return cv2.morphologyEx(self.image_rgb, cv2.MORPH_CLOSE, kernel)
 
     def setup_tabs(self):
         tabs = st.tabs(["Convert Image", "Add Noise", "Blur", "Point Transforms", 
@@ -256,7 +256,7 @@ class ImageProcessor:
         with tabs[5]:
             st.subheader("Hough Transform")
             transform_type = st.selectbox("Choose Type", ["Lines", "Circles"])
-            transformed_img = self.apply_hough_transform(transform_type, self.gray)
+            transformed_img = self.apply_hough_transform(transform_type, self.image_rgb)
             st.image(transformed_img, caption=f"Detected {transform_type}", use_container_width=True)
 
         with tabs[6]:
