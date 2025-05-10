@@ -185,13 +185,13 @@ class ImageProcessor:
     def apply_morphological_operation(self, operation, gray, k_size):
         kernel = np.ones((k_size, k_size), np.uint8)
         if operation == "Dilation":
-            return cv2.dilate(self.image_rgb, kernel, iterations=1)
+            return cv2.dilate(gray, kernel, iterations=1)
         elif operation == "Erosion":
-            return cv2.erode(self.image_rgb, kernel, iterations=1)
+            return cv2.erode(gray, kernel, iterations=1)
         elif operation == "Open":
-            return cv2.morphologyEx(self.image_rgb, cv2.MORPH_OPEN, kernel)
+            return cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
         elif operation == "Close":
-            return cv2.morphologyEx(self.image_rgb, cv2.MORPH_CLOSE, kernel)
+            return cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
 
     def setup_tabs(self):
         tabs = st.tabs(["Convert Image", "Add Noise", "Blur", "Point Transforms", 
@@ -263,7 +263,7 @@ class ImageProcessor:
             st.subheader("Morphological Operations")
             operation = st.selectbox(label = "Select Task",options= ["Dilation", "Erosion", "Open", "Close"])
             k_size = st.slider("Kernel Size", 1, 10, 3)
-            result = self.apply_morphological_operation(operation, self.image_rgb, k_size)
+            result = self.apply_morphological_operation(operation, self.gray, k_size)
             st.image(result, caption=f"{operation} Result", use_container_width=True)
 
 if __name__ == "__main__":
