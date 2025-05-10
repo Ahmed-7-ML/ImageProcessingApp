@@ -21,7 +21,7 @@ Git (for cloning the repository)
 Installation
 
 Clone the Repository:
-git clone https://github.com/your-username/image-processing-app.git
+git clone https://github.com/Ahmed-7-ML/ImageProcessingApp.git
 cd image-processing-app
 
 
