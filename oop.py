@@ -250,7 +250,7 @@ class ImageProcessor:
             k = st.slider("Kernel Size", min_value=1, max_value=15, step=2, value=5) if filter_type in ["Low Pass Filter (Blur)"] else 5
             t1 = st.slider("Canny Threshold 1", 50, 150, 50) if filter_type == "Edge - Canny" else 50
             t2 = st.slider("Canny Threshold 2", 100, 300, 150) if filter_type == "Edge - Canny" else 150
-            output = self.apply_local_filter(filter_type, self.imagr_rgb, k, t1, t2)
+            output = self.apply_local_filter(filter_type, self.image_rgb, k, t1, t2)
             st.image(output, caption=filter_type, use_container_width=True)
 
         with tabs[5]:
