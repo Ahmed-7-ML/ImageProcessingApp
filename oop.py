@@ -10,6 +10,7 @@ class ImageProcessor:
         """Initialize Image Processor Class with an Input Image"""
         self.image = None
         self.image_rgb = None
+        self.gray = None
         # Function to encode local image to base64
         def get_base64_image(image_path):
             with open(image_path, "rb") as image_file:
@@ -262,10 +263,8 @@ class ImageProcessor:
             st.subheader("Morphological Operations")
             operation = st.selectbox(label = "Select Task",options= ["Dilation", "Erosion", "Open", "Close"])
             k_size = st.slider("Kernel Size", 1, 10, 3)
-            result = self.apply_morphological_operation(operation, self.gray, k_size)
+            result = self.apply_morphological_operation(operation, self.image_rgb, k_size)
             st.image(result, caption=f"{operation} Result", use_container_width=True)
 
 if __name__ == "__main__":
-    # Apply Singleton Design Pattern To Ensure Only one Intance Created.
     processor = ImageProcessor()
-    # p = ImageProcessor()
