@@ -2,4 +2,3 @@ streamlit
 numpy
 opencv-python
 matplotlib
-base64
