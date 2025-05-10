@@ -1,4 +1,4 @@
-# Image Processing App
+# Image Processing App🎉
 This is a Streamlit-based web application for performing various image processing operations, such as adding noise, applying blur, edge detection, Hough transforms, and morphological operations. The app features a user-friendly interface with a background image.
 Feature
 
