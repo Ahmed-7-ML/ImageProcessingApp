@@ -17,7 +17,7 @@ class ImageProcessor:
                 return base64.b64encode(image_file.read()).decode()
 
         # Path to your local image
-        image_path = "mobile.jpg"
+        image_path = "bg.jpg"
         encoded_image = get_base64_image(image_path)
 
         # CSS for background image
