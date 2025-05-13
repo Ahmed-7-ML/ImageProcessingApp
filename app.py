@@ -301,7 +301,7 @@ class ImageProcessor:
             transformed_img = self.apply_hough_transform(transform_type, self.gray)
             st.image(transformed_img, caption=f"Detected {transform_type}", use_container_width=True)
             # Download button
-            if st.button("Save Transformed Image"):
+            if st.button("Save Hough-Transformed Image"):
                 filepath = self.save_image(transformed_img, f"Detected_{transform_type}_image")
                 st.success(f"Image saved to {filepath}")
 
@@ -312,7 +312,7 @@ class ImageProcessor:
             result = self.apply_morphological_operation(operation, self.gray, k_size)
             st.image(result, caption=f"{operation} Result", use_container_width=True)
             # Download button
-            if st.button("Save Image"):
+            if st.button("Save Image with Morphological Operation"):
                 filepath = self.save_image(result, f"Image_with_{operation}")
                 st.success(f"Image saved to {filepath}")
 
