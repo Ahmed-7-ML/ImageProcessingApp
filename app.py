@@ -206,7 +206,7 @@ class ImageProcessor:
                         cv2.line(hough_accum, (x1, y1), (x2, y2), 255, 1)
                     hough_accum = cv2.dilate(hough_accum, np.ones((5, 5), np.uint8), iterations=2)
 
-            return lines_image, hough_accum
+                return lines_image, hough_accum
         
             elif transform_type == "Circles":
                 # Enhanced preprocessing for coin detection
