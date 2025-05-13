@@ -369,36 +369,38 @@ class ImageProcessor:
                     mime="image/png"
                 )
 
-        with tabs[5]:
-            st.subheader("Hough Transform")
-            transform_type = st.selectbox("Choose Type", ["Lines", "Circles"])
-            if transform_type == "Lines":
-                lines_image, hough_accum = self.apply_hough_transform(transform_type, self.gray)
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.image(self.image_rgb, caption="Original image", use_container_width=True)
-                with col2:
-                    st.image(hough_accum, caption="The hough", use_container_width=True, clamp=True)
-                with col3:
-                    st.image(lines_image, caption="Extract line segments based on Hough transform", use_container_width=True)
-                image_bytes, filename, error = self.prepare_image_download(lines_image, f"hough_{transform_type.lower()}")
-            elif transform_type == "Circles":
-                circles_image, accum = self.apply_hough_transform(transform_type, self.gray)
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.image(self.image_rgb, caption="Original image", use_container_width=True)
-                with col2:
-                    st.image(circles_image, caption="The image circles", use_container_width=True)
-                image_bytes, filename, error = self.prepare_image_download(circles_image, f"hough_{transform_type.lower()}")
-            if error:
-                st.error(error)
-            else:
-                st.download_button(
-                    label="Download Transformed Image",
-                    data=image_bytes,
-                    file_name=filename,
-                    mime="image/png"
-                )
+    with tabs[5]:
+        st.subheader("Hough Transform")
+        transform_type = st.selectbox("Choose Type", ["Lines", "Circles"])
+        if transform_type == "Lines":
+            lines_image, hough_accum = self.apply_hough_transform(transform_type, self.gray)
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.image(self.image_rgb, caption="Original image", use_container_width=True)
+            with col2:
+                st.image(hough_accum, caption="The hough", use_container_width=True, clamp=True)
+            with col3:
+                st.image(lines_image, caption="Extract line segments based on Hough transform", use_container_width=True)
+            image_bytes, filename, error = self.prepare_image_download(lines_image, f"hough_{transform_type.lower()}")
+        elif transform_type == "Circles":
+            circles_image, accum = self.apply_hough_transform(transform_type, self.gray)
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.image(self.image_rgb, caption="Original image", use_container_width=True)
+            with col2:
+                st.image(accum, caption="The hough", use_container_width=True, clamp=True)
+            with col3:
+                st.image(circles_image, caption="The image circles", use_container_width=True)
+            image_bytes, filename, error = self.prepare_image_download(circles_image, f"hough_{transform_type.lower()}")
+        if error:
+            st.error(error)
+        else:
+            st.download_button(
+                label="Download Transformed Image",
+                data=image_bytes,
+                file_name=filename,
+                mime="image/png"
+            )
 
         with tabs[6]:
             st.subheader("Morphological Operations")
