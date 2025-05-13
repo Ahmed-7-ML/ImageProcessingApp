@@ -167,75 +167,74 @@ class ImageProcessor:
 
 
     def apply_hough_transform(self, transform_type, gray):
-        """Circles and Lines Detection"""
-        # Enhance preprocessing
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)  # Moderate blur to reduce noise
-        _, thresh = cv2.threshold(blurred, 127, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
-        edges = cv2.Canny(thresh, 50, 150)  # Edge detection with adjusted thresholds
-    
-        if transform_type == "Lines":
-            # Find Lines in Edge-Detected Image
-            lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 360, threshold=50, minLineLength=50, maxLineGap=20)
-            filtered_lines = []
-            if lines is not None:
-                for line in lines:
-                    x1, y1, x2, y2 = line[0]
-                    angle = np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi
-                    if 45 < abs(angle) < 135:  # Keep near-vertical lines
-                        filtered_lines.append(line)
-            lines = np.array(filtered_lines) if filtered_lines else None
-            
-            # Create a copy of the original image for drawing lines
-            lines_image = self.image.copy()
-            # Draw detected lines
-            if lines is not None:
-                for line in lines:
-                    x1, y1, x2, y2 = line[0]
-                    cv2.line(lines_image, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green lines
-            
-            # Simulate Hough Accumulator Visualization
-            hough_accum = np.zeros_like(gray)
-            if lines is not None:
-                for line in lines:
-                    x1, y1, x2, y2 = line[0]
-                    cv2.line(hough_accum, (x1, y1), (x2, y2), 255, 1)
-                hough_accum = cv2.dilate(hough_accum, np.ones((5, 5), np.uint8), iterations=2)
-    
-            return lines_image, hough_accum
-    
-        elif transform_type == "Circles":
-            # Enhanced preprocessing for coin detection
+            """Circles and Lines Detection"""
+            # Enhance preprocessing
             blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
             _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
             edges = cv2.Canny(thresh, 100, 200)  # Adjusted Canny thresholds for coin edges
-    
-            # Apply Hough Circle Transform with tuned parameters
-            circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, dp=1, minDist=50,  # Increased minDist to avoid overlapping circles
-                                      param1=200, param2=20,  # Higher param1 for Canny, lower param2 for sensitivity
-                                      minRadius=50, maxRadius=100)  # Constrain radius based on coin size
-    
-            # Create a blank image for circles
-            height, width = self.image.shape[:2]
-            circles_image = np.zeros((height, width, 3), dtype=np.uint8)
-            
-            # Draw detected circles on the blank image
-            if circles is not None:
-                circles = np.round(circles[0, :]).astype("int")
-                for (x, y, r) in circles:
-                    # Draw the circle outline
-                    cv2.circle(circles_image, (x, y), r, (0, 0, 255), 2)  # Red outline
-                    # Draw the center of the circle
-                    cv2.circle(circles_image, (x, y), 2, (255, 0, 0), 3)  # Blue center
-            
-            # Simulate Accumulator Visualization (approximation)
-            accum = np.zeros((gray.shape[0], gray.shape[1]), dtype=np.uint8)
-            if circles is not None:
-                for (x, y, r) in circles:
-                    cv2.circle(accum, (x, y), r, 255, 1)
-                accum = cv2.dilate(accum, np.ones((5, 5), np.uint8), iterations=2)
-            
-            return circles_image, accum
-
+        
+            if transform_type == "Lines":
+                # Find Lines in Edge-Detected Image
+                lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 360, threshold=50, minLineLength=50, maxLineGap=20)
+                filtered_lines = []
+                if lines is not None:
+                    for line in lines:
+                        x1, y1, x2, y2 = line[0]
+                        angle = np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi
+                        if 45 < abs(angle) < 135:  # Keep near-vertical lines
+                            filtered_lines.append(line)
+                lines = np.array(filtered_lines) if filtered_lines else None
+                
+                # Create a copy of the original image for drawing lines
+                lines_image = self.image.copy()
+                # Draw detected lines
+                if lines is not None:
+                    for line in lines:
+                        x1, y1, x2, y2 = line[0]
+                        cv2.line(lines_image, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green lines
+                
+                # Simulate Hough Accumulator Visualization
+                hough_accum = np.zeros_like(gray)
+                if lines is not None:
+                    for line in lines:
+                        x1, y1, x2, y2 = line[0]
+                        cv2.line(hough_accum, (x1, y1), (x2, y2), 255, 1)
+                    hough_accum = cv2.dilate(hough_accum, np.ones((5, 5), np.uint8), iterations=2)
+        
+                return lines_image, hough_accum
+        
+            elif transform_type == "Circles":
+                # Enhanced preprocessing for coin detection
+                blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
+                _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
+                edges = cv2.Canny(thresh, 100, 200)  # Adjusted Canny thresholds for coin edges
+        
+                # Apply Hough Circle Transform with tuned parameters
+                circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, dp=1, minDist=50,
+                                          param1=200, param2=20,
+                                          minRadius=50, maxRadius=100)  # Constrain radius based on coin size
+        
+                # Create a copy of the original image for drawing circles
+                circles_image = self.image.copy()
+                
+                # Draw detected circles on the original image
+                if circles is not None:
+                    circles = np.round(circles[0, :]).astype("int")
+                    for (x, y, r) in circles:
+                        # Draw the circle outline
+                        cv2.circle(circles_image, (x, y), r, (0, 0, 255), 2)  # Red outline
+                        # Draw the center of the circle
+                        cv2.circle(circles_image, (x, y), 2, (255, 0, 0), 3)  # Blue center
+                
+                # Simulate Accumulator Visualization (approximation)
+                accum = np.zeros((gray.shape[0], gray.shape[1]), dtype=np.uint8)
+                if circles is not None:
+                    for (x, y, r) in circles:
+                        cv2.circle(accum, (x, y), r, 255, 1)
+                    accum = cv2.dilate(accum, np.ones((5, 5), np.uint8), iterations=2)
+                
+                return circles_image, accum
+        
     def apply_morphological_operation(self, operation, gray, k_size):
         """Apply Morphological Operations"""
         kernel = np.ones((k_size, k_size), np.uint8)
