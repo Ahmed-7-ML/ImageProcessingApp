@@ -67,19 +67,11 @@ class ImageProcessor:
 
     def save_image(self, image, operation):
         """Save the image to the output directory using OpenCV"""
-        # Generate a unique filename with timestamp
-        # timestamp = time.strftime("%Y%m%d_%H%M%S")
-        # filename = f"{operation.lower().replace(' ', '_')}_{timestamp}.png"
+        # Generate a unique filename
         filename = f"{operation.lower().replace(' ', '_')}.png"
         filepath = os.path.join(self.output_dir, filename)
         # Handle grayscale (2D) or color (3D) images
-        if len(image.shape) == 2:
-            # Grayscale image
-            cv2.imwrite(filepath, image)
-        else:
-            # Color image (convert back to BGR for OpenCV)
-            # image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(filepath, image)
+        cv2.imwrite(filepath, image)
         return filepath
 
     def add_salt_pepper_noise(self, image, amount=0.01, salt_vs_pepper=0.5):
