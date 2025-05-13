@@ -55,7 +55,7 @@ class ImageProcessor:
             self.image = cv2.imdecode(img_arr, 1)  # BGR Image
             self.image_rgb = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
             self.gray = cv2.cvtColor(self.image_rgb, cv2.COLOR_RGB2GRAY)
-            st.image(self.image, caption="BGR Image", use_container_width=True)
+            st.image(self.image_rgb, caption="Uploaded Image (RGB)", use_container_width=True)
             self.setup_tabs()
         else:
             st.info("Please Upload an Image to Get Started")
@@ -167,42 +167,79 @@ class ImageProcessor:
 
     def apply_hough_transform(self, transform_type, gray):
         """Circles and Lines Detection"""
-        img_copy = np.copy(self.image_rgb)  # Create a deep copy to avoid modifying self.image_rgb
+        # Enhance preprocessing
+        blurred = cv2.GaussianBlur(gray, (7, 7), 0)  # Increased blur for noise reduction
+        gray_enhanced = cv2.equalizeHist(blurred)  # Enhance contrast
+        edges = cv2.Canny(gray_enhanced, 30, 100)  # Adjusted Canny thresholds
+
         if transform_type == "Lines":
-            # Apply Edge Detection to Gray Scaled Image
-            edges = cv2.Canny(self.gray, 50, 150)
             # Find Lines in Edge-Detected Image
-            lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 180, threshold=100, minLineLength=50, maxLineGap=10)
+            lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 360, threshold=50, minLineLength=50, maxLineGap=20)
+            filtered_lines = []
             if lines is not None:
                 for line in lines:
                     x1, y1, x2, y2 = line[0]
-                    cv2.line(img_copy, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            return img_copy
+                    angle = np.arctan2(y2 - y1, x2 - x1) * 180 / np.pi
+                    if 45 < abs(angle) < 135:  # Keep near-vertical lines
+                        filtered_lines.append(line)
+            lines = np.array(filtered_lines) if filtered_lines else None
+            
+            # Create a copy of the original image for drawing lines
+            lines_image = self.image.copy()
+            # Draw detected lines
+            if lines is not None:
+                for line in lines:
+                    x1, y1, x2, y2 = line[0]
+                    cv2.line(lines_image, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green lines
+            
+            # Simulate Hough Accumulator Visualization
+            hough_accum = np.zeros_like(gray)
+            if lines is not None:
+                for line in lines:
+                    x1, y1, x2, y2 = line[0]
+                    cv2.line(hough_accum, (x1, y1), (x2, y2), 255, 1)
+                hough_accum = cv2.dilate(hough_accum, np.ones((5, 5), np.uint8), iterations=2)
+
+            return lines_image, hough_accum
+
         elif transform_type == "Circles":
             # Add Blur
-            img_blur = cv2.GaussianBlur(self.gray, (5, 5), 0)
-            circles = cv2.HoughCircles(img_blur, cv2.HOUGH_GRADIENT, dp=1.2, minDist=20,
-                                      param1=50, param2=30, minRadius=10, maxRadius=100)
+            img_blur = cv2.GaussianBlur(gray, (5, 5), 0)
+            circles = cv2.HoughCircles(img_blur, cv2.HOUGH_GRADIENT, dp=1, minDist=20,
+                                      param1=50, param2=30, minRadius=0, maxRadius=0)
+            # Create a blank image for circles
+            height, width = self.image.shape[:2]
+            circles_image = np.zeros((height, width, 3), dtype=np.uint8)
+            
+            # Draw detected circles on the blank image
             if circles is not None:
                 circles = np.round(circles[0, :]).astype("int")
                 for (x, y, r) in circles:
-                    # Draw circle outline
-                    cv2.circle(img_copy, (x, y), r, (0, 255, 0), 2)
-                    # Draw center
-                    cv2.circle(img_copy, (x, y), 2, (0, 0, 255), 3)
-            return img_copy
+                    # Draw the circle outline
+                    cv2.circle(circles_image, (x, y), r, (0, 0, 255), 2)  # Red outline
+                    # Draw the center of the circle
+                    cv2.circle(circles_image, (x, y), 2, (255, 0, 0), 3)  # Blue center
+            
+            # Simulate Accumulator Visualization (approximation)
+            accum = np.zeros((gray.shape[0], gray.shape[1]), dtype=np.uint8)
+            if circles is not None:
+                for (x, y, r) in circles:
+                    cv2.circle(accum, (x, y), r, 255, 1)
+                accum = cv2.dilate(accum, np.ones((5, 5), np.uint8), iterations=2)
+            
+            return circles_image, accum
 
     def apply_morphological_operation(self, operation, gray, k_size):
         """Apply Morphological Operations"""
         kernel = np.ones((k_size, k_size), np.uint8)
         if operation == "Dilation":
-            return cv2.dilate(self.gray, kernel, iterations=1)
+            return cv2.dilate(gray, kernel, iterations=1)
         elif operation == "Erosion":
-            return cv2.erode(self.gray, kernel, iterations=1)
+            return cv2.erode(gray, kernel, iterations=1)
         elif operation == "Open":
-            return cv2.morphologyEx(self.gray, cv2.MORPH_OPEN, kernel)
+            return cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
         elif operation == "Close":
-            return cv2.morphologyEx(self.gray, cv2.MORPH_CLOSE, kernel)
+            return cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
 
     def setup_tabs(self):
         """Set up tabs for different image processing operations"""
@@ -328,9 +365,24 @@ class ImageProcessor:
         with tabs[5]:
             st.subheader("Hough Transform")
             transform_type = st.selectbox("Choose Type", ["Lines", "Circles"])
-            transformed_img = self.apply_hough_transform(transform_type, self.gray)
-            st.image(transformed_img, caption=f"Detected {transform_type}", use_container_width=True)
-            image_bytes, filename, error = self.prepare_image_download(transformed_img, f"hough_{transform_type.lower()}")
+            if transform_type == "Lines":
+                lines_image, hough_accum = self.apply_hough_transform(transform_type, self.gray)
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.image(self.image_rgb, caption="Original image", use_container_width=True)
+                with col2:
+                    st.image(hough_accum, caption="The hough", use_container_width=True, clamp=True)
+                with col3:
+                    st.image(lines_image, caption="Extract line segments based on Hough transform", use_container_width=True)
+                image_bytes, filename, error = self.prepare_image_download(lines_image, f"hough_{transform_type.lower()}")
+            elif transform_type == "Circles":
+                circles_image, accum = self.apply_hough_transform(transform_type, self.gray)
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.image(self.image_rgb, caption="Original image", use_container_width=True)
+                with col2:
+                    st.image(circles_image, caption="The image circles", use_container_width=True)
+                image_bytes, filename, error = self.prepare_image_download(circles_image, f"hough_{transform_type.lower()}")
             if error:
                 st.error(error)
             else:
