@@ -1,16 +1,22 @@
-# Image Processing App[OOP Paradigm]  
+# Image Processing App[OOP Paradigm]
 import cv2
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import base64
+import time
+import os
 
 class ImageProcessor:
     def __init__(self):
         """Initialize Image Processor Class with an Input Image"""
         self.image = None
         self.image_rgb = None
-        self.gray = None
+        # Create output directory if it doesn't exist
+        self.output_dir = "output_images"
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+
         # Function to encode local image to base64
         def get_base64_image(image_path):
             with open(image_path, "rb") as image_file:
@@ -43,7 +49,7 @@ class ImageProcessor:
         st.markdown(page_bg_img, unsafe_allow_html=True)
  
         st.title("Image Processing App 🎉")
-        self.file = st.file_uploader("Upload an Image", ["png", "jpg", "jpeg"])
+        self.file = st.file_uploader("Upload an Image", ["png", "jpg", "jpeg", "gif"])
         self.load_image()
         
     def load_image(self):
@@ -58,6 +64,23 @@ class ImageProcessor:
             self.setup_tabs()
         else:
             st.info("Please Upload an Image to Get Started")
+
+    def save_image(self, image, operation):
+        """Save the image to the output directory using OpenCV"""
+        # Generate a unique filename with timestamp
+        # timestamp = time.strftime("%Y%m%d_%H%M%S")
+        # filename = f"{operation.lower().replace(' ', '_')}_{timestamp}.png"
+        filename = f"{operation.lower().replace(' ', '_')}.png"
+        filepath = os.path.join(self.output_dir, filename)
+        # Handle grayscale (2D) or color (3D) images
+        if len(image.shape) == 2:
+            # Grayscale image
+            cv2.imwrite(filepath, image)
+        else:
+            # Color image (convert back to BGR for OpenCV)
+            # image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(filepath, image)
+        return filepath
 
     def add_salt_pepper_noise(self, image, amount=0.01, salt_vs_pepper=0.5):
         """Add Salt and Pepper Noise To Image"""
@@ -185,13 +208,13 @@ class ImageProcessor:
     def apply_morphological_operation(self, operation, gray, k_size):
         kernel = np.ones((k_size, k_size), np.uint8)
         if operation == "Dilation":
-            return cv2.dilate(gray, kernel, iterations=1)
+            return cv2.dilate(self.gray, kernel, iterations=1)
         elif operation == "Erosion":
-            return cv2.erode(gray, kernel, iterations=1)
+            return cv2.erode(self.gray, kernel, iterations=1)
         elif operation == "Open":
-            return cv2.morphologyEx(gray, cv2.MORPH_OPEN, kernel)
+            return cv2.morphologyEx(self.gray, cv2.MORPH_OPEN, kernel)
         elif operation == "Close":
-            return cv2.morphologyEx(gray, cv2.MORPH_CLOSE, kernel)
+            return cv2.morphologyEx(self.gray, cv2.MORPH_CLOSE, kernel)
 
     def setup_tabs(self):
         tabs = st.tabs(["Convert Image", "Add Noise", "Blur", "Point Transforms", 
@@ -202,6 +225,10 @@ class ImageProcessor:
             converter = st.selectbox("Convert into ", ["RGB", "Gray Scale"])
             converted_img = self.convert_image(converter)
             st.image(converted_img, caption=f"{converter} Image", use_container_width=True)
+            # Download button
+            if st.button("Save Converted Image"):
+                filepath = self.save_image(converted_img, f"Converted_{converter}")
+                st.success(f"Image saved to {filepath}")
 
         with tabs[1]:
             st.subheader("Add Noise")
@@ -217,6 +244,10 @@ class ImageProcessor:
             elif noise_type == "Poisson Noise":
                 noised_img = self.add_poisson_noise(self.image_rgb)
             st.image(noised_img, caption=f"Add Noise by {noise_type}", use_container_width=True)
+            # Download button
+            if st.button("Save Noised Image"):
+                filepath = self.save_image(noised_img, f"noised_{noise_type}")
+                st.success(f"Image saved to {filepath}")
 
         with tabs[2]:
             st.subheader("Blurring")
@@ -224,6 +255,10 @@ class ImageProcessor:
             k = st.slider("Kernel Size", min_value=1, max_value=25, step=1 if blur_type == "Average Blur" else 2, value=5)
             blurred_img = self.blur_image(blur_type, k)
             st.image(blurred_img, caption=f"Image blurred by {blur_type}", use_container_width=True)
+            # Download button
+            if st.button("Save Blurred Image"):
+                filepath = self.save_image(blurred_img, f"Blurred_{blur_type}")
+                st.success(f"Image saved to {filepath}")
 
         with tabs[3]:
             st.subheader("Point Transform")
@@ -233,12 +268,23 @@ class ImageProcessor:
                 beta = st.slider("Brightness (beta)", -100, 100, 0)
                 adjusted = self.adjust_brightness_contrast(alpha, beta)
                 st.image(adjusted, caption="Brightness & Contrast Adjusted", use_container_width=True)
+                if st.button("Save Adjusted Image"):
+                    filepath = self.save_image(adjusted, f"Adjusted_image")
+                    st.success(f"Image saved to {filepath}")
             elif subtask == "Histogram":
                 fig = self.compute_histogram()
                 st.pyplot(fig)
+                # Download button
+                if st.button("Save Histogram of Image"):
+                    filepath = self.save_image(fig, f"Hitogram")
+                    st.success(f"Image saved to {filepath}")
             elif subtask == "Histogram Equalization":
                 equalized = self.equalize_histogram()
                 st.image(equalized, caption="Histogram Equalized", use_container_width=True)
+                # Download button
+                if st.button("Save Equalized Image"):
+                    filepath = self.save_image(equalized, f"Equalized_image")
+                    st.success(f"Image saved to {filepath}")
 
         with tabs[4]:
             st.subheader("Local Filtering & Edge Detection")
@@ -252,12 +298,20 @@ class ImageProcessor:
             t2 = st.slider("Canny Threshold 2", 100, 300, 150) if filter_type == "Edge - Canny" else 150
             output = self.apply_local_filter(filter_type, self.gray, k, t1, t2)
             st.image(output, caption=filter_type, use_container_width=True)
+            # Download button
+            if st.button("Save Filtered Image"):
+                filepath = self.save_image(output, f"Filtered_{filter_type}_image")
+                st.success(f"Image saved to {filepath}")
 
         with tabs[5]:
             st.subheader("Hough Transform")
             transform_type = st.selectbox("Choose Type", ["Lines", "Circles"])
-            transformed_img = self.apply_hough_transform(transform_type, self.image_rgb)
+            transformed_img = self.apply_hough_transform(transform_type, self.gray)
             st.image(transformed_img, caption=f"Detected {transform_type}", use_container_width=True)
+            # Download button
+            if st.button("Save Transformed Image"):
+                filepath = self.save_image(transformed_img, f"Transformed_{transform_type}_image")
+                st.success(f"Image saved to {filepath}")
 
         with tabs[6]:
             st.subheader("Morphological Operations")
@@ -265,6 +319,12 @@ class ImageProcessor:
             k_size = st.slider("Kernel Size", 1, 10, 3)
             result = self.apply_morphological_operation(operation, self.gray, k_size)
             st.image(result, caption=f"{operation} Result", use_container_width=True)
+            # Download button
+            if st.button("Save Image"):
+                filepath = self.save_image(result, f"Image_with_{operation}")
+                st.success(f"Image saved to {filepath}")
 
 if __name__ == "__main__":
+    # Apply Singleton Design Pattern To Ensure Only one Intance Created.
     processor = ImageProcessor()
+    # p = ImageProcessor()
