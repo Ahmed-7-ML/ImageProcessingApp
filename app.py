@@ -208,7 +208,7 @@ class ImageProcessor:
 
                 return lines_image, hough_accum
         
-        elif transform_type == "Circles":
+            elif transform_type == "Circles":
                 # Enhanced preprocessing for coin detection
                 blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
                 _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # Otsu thresholding
