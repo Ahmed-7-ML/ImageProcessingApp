@@ -219,7 +219,7 @@ class ImageProcessor:
                 st.error(error)
             else:
                 st.download_button(
-                    label="Download Converted Image",
+                    label=f"Download Converted Image",
                     data=image_bytes,
                     file_name=filename,
                     mime="image/png"
@@ -288,7 +288,6 @@ class ImageProcessor:
             elif subtask == "Histogram":
                 fig = self.compute_histogram()
                 st.pyplot(fig)
-                # No download button for histogram since it produces a plot, not an image
             elif subtask == "Histogram Equalization":
                 equalized = self.equalize_histogram()
                 st.image(equalized, caption="Histogram Equalized", use_container_width=True)
@@ -315,7 +314,7 @@ class ImageProcessor:
             t2 = st.slider("Canny Threshold 2", 100, 300, 150) if filter_type == "Edge - Canny" else 150
             output = self.apply_local_filter(filter_type, self.gray, k, t1, t2)
             st.image(output, caption=filter_type, use_container_width=True)
-            image_bytes, filename, error = self.prepare_image_download(output, f"filtered_{filter_type.replace(' ', '_')}")
+            image_bytes, filename, error = self.prepare_image_download(output, f"filtered_{filter_type}")
             if error:
                 st.error(error)
             else:
