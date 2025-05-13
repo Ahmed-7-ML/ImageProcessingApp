@@ -1,4 +1,4 @@
-# Image Processing App[OOP Paradigm]
+# Image Processing App[OOP Paradigm]  
 import cv2
 import streamlit as st
 import numpy as np
