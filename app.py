@@ -3,7 +3,6 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import base64
-import time
 import os
 
 class ImageProcessor:
@@ -63,9 +62,7 @@ class ImageProcessor:
 
     def prepare_image_download(self, image, operation):
         """Prepare the image for download as PNG bytes"""
-        # Generate a unique filename with timestamp
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        filename = f"{operation.lower().replace(' ', '_')}_{timestamp}.png"
+        filename = f"{operation.lower()}.png"
         try:
             _, buffer = cv2.imencode(".png", image)
             image_bytes = buffer.tobytes()
