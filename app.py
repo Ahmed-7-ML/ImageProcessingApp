@@ -168,11 +168,16 @@ class ImageProcessor:
 
     def apply_hough_transform(self, transform_type, gray):
             """Circles and Lines Detection"""
-            # Enhance preprocessing
-            blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
-            _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
-            edges = cv2.Canny(thresh, 100, 200)  # Adjusted Canny thresholds for coin edges
+            # # Enhance preprocessing
+            # blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
+            # _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
+            # edges = cv2.Canny(thresh, 100, 200)  # Adjusted Canny thresholds for coin edges
         
+            # Enhance preprocessing
+            blurred = cv2.GaussianBlur(gray, (7, 7), 0)  # Increased blur for noise reduction
+            gray_enhanced = cv2.equalizeHist(blurred)  # Enhance contrast
+            edges = cv2.Canny(gray_enhanced, 30, 100)  # Adjusted Canny thresholds
+    
             if transform_type == "Lines":
                 # Find Lines in Edge-Detected Image
                 lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 360, threshold=50, minLineLength=50, maxLineGap=20)
@@ -192,7 +197,7 @@ class ImageProcessor:
                     for line in lines:
                         x1, y1, x2, y2 = line[0]
                         cv2.line(lines_image, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green lines
-                
+            
                 # Simulate Hough Accumulator Visualization
                 hough_accum = np.zeros_like(gray)
                 if lines is not None:
@@ -200,16 +205,14 @@ class ImageProcessor:
                         x1, y1, x2, y2 = line[0]
                         cv2.line(hough_accum, (x1, y1), (x2, y2), 255, 1)
                     hough_accum = cv2.dilate(hough_accum, np.ones((5, 5), np.uint8), iterations=2)
-        
-                return lines_image, hough_accum
+
+            return lines_image, hough_accum
         
             elif transform_type == "Circles":
                 # Enhanced preprocessing for coin detection
                 blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
                 _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
                 edges = cv2.Canny(thresh, 100, 200)  # Adjusted Canny thresholds for coin edges
-                min_radius = st.slider("Min Radius", 0, 200, 50)
-                max_radius = st.slider("Max Radius", 0, 200, 100)
                 # Apply Hough Circle Transform with tuned parameters
                 circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, dp=1, minDist=50,
                                           param1=200, param2=20,
