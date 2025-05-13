@@ -208,15 +208,20 @@ class ImageProcessor:
 
                 return lines_image, hough_accum
         
-            elif transform_type == "Circles":
+        elif transform_type == "Circles":
                 # Enhanced preprocessing for coin detection
                 blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
-                _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
-                edges = cv2.Canny(thresh, 100, 200)  # Adjusted Canny thresholds for coin edges
+                _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # Otsu thresholding
+                edges = cv2.Canny(thresh, 50, 150)  # Adjusted Canny thresholds for clearer coin edges
+        
+                # Estimate coin size based on image dimensions (adjust based on your image)
+                height, width = gray.shape
+                avg_radius = min(height, width) // 10  # Approximate radius based on image size
+        
                 # Apply Hough Circle Transform with tuned parameters
-                circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, dp=1, minDist=50,
-                                          param1=200, param2=20,
-                                          minRadius=50, maxRadius=100)  # Constrain radius based on coin size
+                circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, dp=1, minDist=avg_radius * 1.5,  # Minimum distance between circles
+                                          param1=150, param2=25,  # Adjusted for better edge detection and sensitivity
+                                          minRadius=int(avg_radius * 0.8), maxRadius=int(avg_radius * 1.2))  # Dynamic radius range
         
                 # Create a copy of the original image for drawing circles
                 circles_image = self.image.copy()
