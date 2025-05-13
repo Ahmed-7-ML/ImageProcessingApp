@@ -43,7 +43,7 @@ class ImageProcessor:
         st.markdown(page_bg_img, unsafe_allow_html=True)
  
         st.title("Image Processing App 🎉")
-        self.file = st.file_uploader("Upload an Image", ["png", "jpg", "jpeg", "gif"])
+        self.file = st.file_uploader("Upload an Image", ["png", "jpg", "jpeg"])
         self.load_image()
         
     def load_image(self):
