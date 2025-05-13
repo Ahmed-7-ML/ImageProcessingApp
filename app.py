@@ -219,7 +219,7 @@ class ImageProcessor:
             st.image(converted_img, caption=f"{converter} Image", use_container_width=True)
             # Download button
             if st.button("Save Converted Image"):
-                filepath = self.save_image(converted_img, f"Converted_{converter}")
+                filepath = self.save_image(converted_img, f"{converter} Converted Image")
                 st.success(f"Image saved to {filepath}")
 
         with tabs[1]:
@@ -238,7 +238,7 @@ class ImageProcessor:
             st.image(noised_img, caption=f"Add Noise by {noise_type}", use_container_width=True)
             # Download button
             if st.button("Save Noised Image"):
-                filepath = self.save_image(noised_img, f"noised_{noise_type}")
+                filepath = self.save_image(noised_img, f"{noise_type} image")
                 st.success(f"Image saved to {filepath}")
 
         with tabs[2]:
@@ -249,7 +249,7 @@ class ImageProcessor:
             st.image(blurred_img, caption=f"Image blurred by {blur_type}", use_container_width=True)
             # Download button
             if st.button("Save Blurred Image"):
-                filepath = self.save_image(blurred_img, f"Blurred_{blur_type}")
+                filepath = self.save_image(blurred_img, f"{blur_type} image")
                 st.success(f"Image saved to {filepath}")
 
         with tabs[3]:
@@ -292,7 +292,7 @@ class ImageProcessor:
             st.image(output, caption=filter_type, use_container_width=True)
             # Download button
             if st.button("Save Filtered Image"):
-                filepath = self.save_image(output, f"Filtered_{filter_type}_image")
+                filepath = self.save_image(output, f"{filter_type} image")
                 st.success(f"Image saved to {filepath}")
 
         with tabs[5]:
@@ -302,7 +302,7 @@ class ImageProcessor:
             st.image(transformed_img, caption=f"Detected {transform_type}", use_container_width=True)
             # Download button
             if st.button("Save Transformed Image"):
-                filepath = self.save_image(transformed_img, f"Transformed_{transform_type}_image")
+                filepath = self.save_image(transformed_img, f"Detected_{transform_type}_image")
                 st.success(f"Image saved to {filepath}")
 
         with tabs[6]:
