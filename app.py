@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import base64
 import time
 import os
+import io
 
 class ImageProcessor:
     def __init__(self):
@@ -86,9 +87,12 @@ class ImageProcessor:
                 # Color image (convert back to BGR for OpenCV)
                 image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                 cv2.imwrite(filepath, image_bgr)
-            return filepath, None
+            # Prepare image for download
+            _, buffer = cv2.imencode(".png", image if len(image.shape) == 2 else image_bgr)
+            image_bytes = buffer.tobytes()
+            return filepath, image_bytes, filename, None
         except Exception as e:
-            return None, f"Error saving image: {str(e)}"
+            return None, None, None, f"Error saving image: {str(e)}"
 
     def add_salt_pepper_noise(self, image, amount=0.01, salt_vs_pepper=0.5):
         """Add Salt and Pepper Noise To Image"""
@@ -235,11 +239,17 @@ class ImageProcessor:
             converted_img = self.convert_image(converter)
             st.image(converted_img, caption=f"{converter} Image", use_container_width=True)
             if st.button("Save Converted Image"):
-                filepath, error = self.save_image(converted_img, f"converted_{converter}")
+                filepath, image_bytes, filename, error = self.save_image(converted_img, f"converted_{converter}")
                 if error:
                     st.error(error)
                 else:
                     st.success(f"Image saved to {filepath}")
+                    st.download_button(
+                        label="Download Converted Image",
+                        data=image_bytes,
+                        file_name=filename,
+                        mime="image/png"
+                    )
 
         with tabs[1]:
             st.subheader("Add Noise")
@@ -256,11 +266,17 @@ class ImageProcessor:
                 noised_img = self.add_poisson_noise(self.image_rgb)
             st.image(noised_img, caption=f"Add Noise by {noise_type}", use_container_width=True)
             if st.button("Save Noised Image"):
-                filepath, error = self.save_image(noised_img, f"noised_{noise_type}")
+                filepath, image_bytes, filename, error = self.save_image(noised_img, f"noised_{noise_type}")
                 if error:
                     st.error(error)
                 else:
                     st.success(f"Image saved to {filepath}")
+                    st.download_button(
+                        label="Download Noised Image",
+                        data=image_bytes,
+                        file_name=filename,
+                        mime="image/png"
+                    )
 
         with tabs[2]:
             st.subheader("Blurring")
@@ -269,11 +285,17 @@ class ImageProcessor:
             blurred_img = self.blur_image(blur_type, k)
             st.image(blurred_img, caption=f"Image blurred by {blur_type}", use_container_width=True)
             if st.button("Save Blurred Image"):
-                filepath, error = self.save_image(blurred_img, f"blurred_{blur_type}")
+                filepath, image_bytes, filename, error = self.save_image(blurred_img, f"blurred_{blur_type}")
                 if error:
                     st.error(error)
                 else:
                     st.success(f"Image saved to {filepath}")
+                    st.download_button(
+                        label="Download Blurred Image",
+                        data=image_bytes,
+                        file_name=filename,
+                        mime="image/png"
+                    )
 
         with tabs[3]:
             st.subheader("Point Transform")
@@ -284,11 +306,17 @@ class ImageProcessor:
                 adjusted = self.adjust_brightness_contrast(alpha, beta)
                 st.image(adjusted, caption="Brightness & Contrast Adjusted", use_container_width=True)
                 if st.button("Save Adjusted Image"):
-                    filepath, error = self.save_image(adjusted, "brightness_contrast")
+                    filepath, image_bytes, filename, error = self.save_image(adjusted, "brightness_contrast")
                     if error:
                         st.error(error)
                     else:
                         st.success(f"Image saved to {filepath}")
+                        st.download_button(
+                            label="Download Adjusted Image",
+                            data=image_bytes,
+                            file_name=filename,
+                            mime="image/png"
+                        )
             elif subtask == "Histogram":
                 fig = self.compute_histogram()
                 st.pyplot(fig)
@@ -297,11 +325,17 @@ class ImageProcessor:
                 equalized = self.equalize_histogram()
                 st.image(equalized, caption="Histogram Equalized", use_container_width=True)
                 if st.button("Save Equalized Image"):
-                    filepath, error = self.save_image(equalized, "histogram_equalized")
+                    filepath, image_bytes, filename, error = self.save_image(equalized, "histogram_equalized")
                     if error:
                         st.error(error)
                     else:
                         st.success(f"Image saved to {filepath}")
+                        st.download_button(
+                            label="Download Equalized Image",
+                            data=image_bytes,
+                            file_name=filename,
+                            mime="image/png"
+                        )
 
         with tabs[4]:
             st.subheader("Local Filtering & Edge Detection")
@@ -316,11 +350,17 @@ class ImageProcessor:
             output = self.apply_local_filter(filter_type, self.gray, k, t1, t2)
             st.image(output, caption=filter_type, use_container_width=True)
             if st.button("Save Filtered Image"):
-                filepath, error = self.save_image(output, f"filtered_{filter_type.replace(' ', '_')}")
+                filepath, image_bytes, filename, error = self.save_image(output, f"filtered_{filter_type.replace(' ', '_')}")
                 if error:
                     st.error(error)
                 else:
                     st.success(f"Image saved to {filepath}")
+                    st.download_button(
+                        label="Download Filtered Image",
+                        data=image_bytes,
+                        file_name=filename,
+                        mime="image/png"
+                    )
 
         with tabs[5]:
             st.subheader("Hough Transform")
@@ -328,11 +368,17 @@ class ImageProcessor:
             transformed_img = self.apply_hough_transform(transform_type, self.gray)
             st.image(transformed_img, caption=f"Detected {transform_type}", use_container_width=True)
             if st.button("Save Transformed Image"):
-                filepath, error = self.save_image(transformed_img, f"hough_{transform_type.lower()}")
+                filepath, image_bytes, filename, error = self.save_image(transformed_img, f"hough_{transform_type.lower()}")
                 if error:
                     st.error(error)
                 else:
                     st.success(f"Image saved to {filepath}")
+                    st.download_button(
+                        label="Download Transformed Image",
+                        data=image_bytes,
+                        file_name=filename,
+                        mime="image/png"
+                    )
 
         with tabs[6]:
             st.subheader("Morphological Operations")
@@ -341,11 +387,17 @@ class ImageProcessor:
             result = self.apply_morphological_operation(operation, self.gray, k_size)
             st.image(result, caption=f"{operation} Result", use_container_width=True)
             if st.button("Save Morphological Image"):
-                filepath, error = self.save_image(result, f"morph_{operation.lower()}")
+                filepath, image_bytes, filename, error = self.save_image(result, f"morph_{operation.lower()}")
                 if error:
                     st.error(error)
                 else:
                     st.success(f"Image saved to {filepath}")
+                    st.download_button(
+                        label="Download Morphological Image",
+                        data=image_bytes,
+                        file_name=filename,
+                        mime="image/png"
+                    )
 
 if __name__ == "__main__":
     processor = ImageProcessor()
