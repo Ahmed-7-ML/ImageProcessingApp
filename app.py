@@ -68,7 +68,7 @@ class ImageProcessor:
     def save_image(self, image, operation):
         """Save the image to the output directory using OpenCV"""
         # Generate a unique filename
-        filename = f"{operation.lower().replace(' ', '_')}.png"
+        filename = f"{operation.lower()}.png"
         filepath = os.path.join(self.output_dir, filename)
         # Handle grayscale (2D) or color (3D) images
         cv2.imwrite(filepath, image)
