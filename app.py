@@ -180,7 +180,7 @@ class ImageProcessor:
     
             if transform_type == "Lines":
                 # Find Lines in Edge-Detected Image
-                lines = cv2.HoughLinesP(edges, rho=1, theta=np.pi / 360, threshold=50, minLineLength=50, maxLineGap=20)
+                lines = cv2.HoughLinesP(edges, rho=1.0, theta=np.pi / 260, threshold=40, minLineLength=10, maxLineGap=60)
                 filtered_lines = []
                 if lines is not None:
                     for line in lines:
