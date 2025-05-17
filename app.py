@@ -24,7 +24,7 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://drive.google.com/file/d/1M9WsLRAW5LSFcCRZHi6LWtrPsmF_CatU/view?usp=sharing"
+        image_url = "https://drive.google.com/uc?export=view&id=1M9WsLRAW5LSFcCRZHi6LWtrPsmF_CatU"
         page_bg_img = f"""
         <style>
         [data-testid="stAppViewContainer"] {{
