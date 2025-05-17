@@ -24,7 +24,8 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://www.freepik.com/free-vector/blue-fluid-background-frame_14547779.htm"
+        image_url = "https://images.unsplash.com/photo-1529156069898-49953e39b3ac"
+        
         page_bg_img = f"""
         <style>
         [data-testid="stAppViewContainer"] {{
@@ -39,14 +40,10 @@ class ImageProcessor:
         }}
         #MainMenu {{visibility: hidden;}}
         footer {{visibility: hidden;}}
-        .stTabs [data-baseweb="tab-panel"] {{
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-        }}
         </style>
         """
         st.markdown(page_bg_img, unsafe_allow_html=True)
+
 
         st.title("Image Processing App 🎉")
         self.file = st.file_uploader("Upload an Image", ["png", "jpg", "jpeg"])
