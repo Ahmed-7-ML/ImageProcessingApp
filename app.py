@@ -24,14 +24,15 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://raw.githubusercontent.com/Ahmed-7-ML/ImageProcessingApp/main/bg.jpg"        
+        image_url = "https://raw.githubusercontent.com/Ahmed-7-ML/ImageProcessingApp/main/bg.jpg"
+        
         page_bg_img = f"""
         <style>
         [data-testid="stAppViewContainer"] {{
             background-image: url("{image_url}");
-            background-size: contain;
+            background-size: 100% auto;  /* العرض 100%، والطول تلقائي */
             background-repeat: no-repeat;
-            background-position: center;
+            background-position: top center;
             background-attachment: fixed;
             min-height: 100vh;
         }}
@@ -43,9 +44,6 @@ class ImageProcessor:
         </style>
         """
         st.markdown(page_bg_img, unsafe_allow_html=True)
-
-        
-
 
         st.title("Image Processing App 🎉")
         self.file = st.file_uploader("Upload an Image", ["png", "jpg", "jpeg"])
