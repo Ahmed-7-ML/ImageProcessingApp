@@ -24,7 +24,7 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"  # Replace with your actual image URL
+        image_url = "https://www.freepik.com/free-vector/blue-fluid-background-frame_14547779.htm#fromView=keyword&page=1&position=11&uuid=d43fb6dc-43fa-4cb1-b456-61d056c4bbee&query=App+Background"
 
         # CSS for background image using online URL
         page_bg_img = f"""
