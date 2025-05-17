@@ -24,7 +24,7 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://www.freepik.com/free-vector/blue-fluid-background-frame_14547779.htm"
+        image_url = "https://cdn.freepik.com/free-vector/blue-fluid-background-frame_14547779.htm"
 
         # CSS for background image using online URL
         page_bg_img = f"""
