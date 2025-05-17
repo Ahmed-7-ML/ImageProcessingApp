@@ -24,7 +24,7 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "image_url = "https://raw.githubusercontent.com/Ahmed-7-ML/ImageProcessingApp/main/bg.jpg"" 
+        image_url = "image_url = "https://raw.githubusercontent.com/Ahmed-7-ML/ImageProcessingApp/main/bg.jpg"
         # "https://github.com/Ahmed-7-ML/ImageProcessingApp/blob/main/bg.jpg?raw=true"
         
         page_bg_img = f"""
