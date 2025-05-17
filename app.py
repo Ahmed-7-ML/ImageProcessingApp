@@ -24,7 +24,7 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://images.unsplash.com/photo-1529156069898-49953e39b3ac"
+        image_url = "https://drive.google.com/uc?export=view&id=1M9WsLRAW5LSFcCRZHi6LWtrPsmF_CatU"
         
         page_bg_img = f"""
         <style>
@@ -43,6 +43,7 @@ class ImageProcessor:
         </style>
         """
         st.markdown(page_bg_img, unsafe_allow_html=True)
+        
 
 
         st.title("Image Processing App 🎉")
