@@ -24,16 +24,15 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://raw.githubusercontent.com/Ahmed-7-ML/ImageProcessingApp/main/bg.jpg"
-        # "https://github.com/Ahmed-7-ML/ImageProcessingApp/blob/main/bg.jpg?raw=true"
-        
+        image_url = "https://raw.githubusercontent.com/Ahmed-7-ML/ImageProcessingApp/main/bg.jpg"        
         page_bg_img = f"""
         <style>
         [data-testid="stAppViewContainer"] {{
             background-image: url("{image_url}");
-            background-size: cover;
+            background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
+            background-attachment: fixed;
             min-height: 100vh;
         }}
         [data-testid="stHeader"] {{
@@ -44,6 +43,7 @@ class ImageProcessor:
         </style>
         """
         st.markdown(page_bg_img, unsafe_allow_html=True)
+
         
 
 
