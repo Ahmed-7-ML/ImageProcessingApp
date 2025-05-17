@@ -2,8 +2,6 @@ import cv2
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import base64
-import os
 
 class ImageProcessor:
     _instance = None
@@ -25,20 +23,14 @@ class ImageProcessor:
         self.image_rgb = None
         self.gray = None
 
-        # Function to encode local image to base64
-        def get_base64_image(image_path):
-            with open(image_path, "rb") as image_file:
-                return base64.b64encode(image_file.read()).decode()
+        # URL of the online background image
+        image_url = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c"  # Replace with your actual image URL
 
-        # Path to background image
-        image_path = "bg.jpg"
-        encoded_image = get_base64_image(image_path)
-
-        # CSS for background image
+        # CSS for background image using online URL
         page_bg_img = f"""
         <style>
         [data-testid="stAppViewContainer"] {{
-            background-image: url("data:image/jpeg;base64,{encoded_image}");
+            background-image: url("{image_url}");
             background-size: cover;
             background-repeat: no-repeat;
         }}
@@ -55,11 +47,11 @@ class ImageProcessor:
         </style>
         """
         st.markdown(page_bg_img, unsafe_allow_html=True)
- 
+
         st.title("Image Processing App 🎉")
         self.file = st.file_uploader("Upload an Image", ["png", "jpg", "jpeg"])
         self.load_image()
-        
+
     def load_image(self):
         """Accept an Input Image of Type png, jpg or jpeg"""
         if self.file is not None:
@@ -183,7 +175,7 @@ class ImageProcessor:
         blurred = cv2.GaussianBlur(gray, (7, 7), 0)  # Increased blur for noise reduction
         gray_enhanced = cv2.equalizeHist(blurred)  # Enhance contrast
         edges = cv2.Canny(gray_enhanced, 30, 100)  # Adjusted Canny thresholds
-    
+
         if transform_type == "Lines":
             # Find Lines in Edge-Detected Image
             lines = cv2.HoughLinesP(edges, rho=1.0, theta=np.pi / 260, threshold=40, minLineLength=10, maxLineGap=60)
@@ -195,7 +187,7 @@ class ImageProcessor:
                     if 45 < abs(angle) < 135:  # Keep near-vertical lines
                         filtered_lines.append(line)
             lines = np.array(filtered_lines) if filtered_lines else None
-            
+
             # Create a copy of the original image for drawing lines
             lines_image = self.image.copy()
             # Draw detected lines
@@ -203,7 +195,7 @@ class ImageProcessor:
                 for line in lines:
                     x1, y1, x2, y2 = line[0]
                     cv2.line(lines_image, (x1, y1), (x2, y2), (0, 255, 0), 2)  # Green lines
-        
+
             # Simulate Hough Accumulator Visualization
             hough_accum = np.zeros_like(gray)
             if lines is not None:
@@ -213,21 +205,21 @@ class ImageProcessor:
                 hough_accum = cv2.dilate(hough_accum, np.ones((5, 5), np.uint8), iterations=2)
 
             return lines_image, hough_accum
-        
+
         elif transform_type == "Circles":
             # Enhanced preprocessing for coin detection
             blurred = cv2.GaussianBlur(gray, (3, 3), 0)  # Lighter blur to preserve edges
             _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)  # Otsu thresholding
             edges = cv2.Canny(thresh, 100, 200)  # Adjusted Canny thresholds for coin edges
-        
+
             # Apply Hough Circle Transform with tuned parameters
             circles = cv2.HoughCircles(edges, cv2.HOUGH_GRADIENT, dp=1, minDist=50,
                                       param1=200, param2=20,
                                       minRadius=50, maxRadius=100)  # Constrain radius based on coin size
-        
+
             # Create a copy of the original image for drawing circles
             circles_image = self.image.copy()
-            
+
             # Draw detected circles on the original image
             if circles is not None:
                 circles = np.round(circles[0, :]).astype("int")
@@ -236,16 +228,16 @@ class ImageProcessor:
                     cv2.circle(circles_image, (x, y), r, (0, 0, 255), 2)  # Red outline
                     # Draw the center of the circle
                     cv2.circle(circles_image, (x, y), 2, (255, 0, 0), 3)  # Blue center
-            
+
             # Simulate Accumulator Visualization (approximation)
             accum = np.zeros((gray.shape[0], gray.shape[1]), dtype=np.uint8)
             if circles is not None:
                 for (x, y, r) in circles:
                     cv2.circle(accum, (x, y), r, 255, 1)
                 accum = cv2.dilate(accum, np.ones((5, 5), np.uint8), iterations=2)
-            
+
             return circles_image, accum
-        
+
     def apply_morphological_operation(self, operation, gray, k_size):
         """Apply Morphological Operations"""
         kernel = np.ones((k_size, k_size), np.uint8)
@@ -260,7 +252,7 @@ class ImageProcessor:
 
     def setup_tabs(self):
         """Set up tabs for different image processing operations"""
-        tabs = st.tabs(["Convert Image", "Add Noise", "Blur", "Point Transforms", 
+        tabs = st.tabs(["Convert Image", "Add Noise", "Blur", "Point Transforms",
                         "Local Transforms", "Global Transforms", "Morphological"])
 
         with tabs[0]:
@@ -326,7 +318,7 @@ class ImageProcessor:
             subtask = st.selectbox("Choose Task", ["Brightness & Contrast", "Histogram", "Histogram Equalization"])
             if subtask == "Brightness & Contrast":
                 alpha = st.slider("Contrast (alpha)", 0.5, 3.0, 1.0)
-                beta = st.slider("Brightness (beta)", -100, 100, 0)
+                beta = st.slider("Brightness (beta)", - INSTALL_FAILED_INSUFFICIENT_STORAGE100, 100, 0)
                 adjusted = self.adjust_brightness_contrast(alpha, beta)
                 st.image(adjusted, caption="Brightness & Contrast Adjusted", use_container_width=True)
                 image_bytes, filename, error = self.prepare_image_download(adjusted, "brightness_contrast")
@@ -359,8 +351,8 @@ class ImageProcessor:
         with tabs[4]:
             st.subheader("Local Filtering & Edge Detection")
             filter_type = st.selectbox("Choose Task", [
-                "Low Pass Filter (Blur)", "High Pass Filter (Sharpen)", "Edge - Sobel", 
-                "Edge - Prewitt", "Edge - Roberts", "Edge - Laplacian", 
+                "Low Pass Filter (Blur)", "High Pass Filter (Sharpen)", "Edge - Sobel",
+                "Edge - Prewitt", "Edge - Roberts", "Edge - Laplacian",
                 "Edge - Laplacian of Gaussian", "Edge - Canny"
             ])
             k = st.slider("Kernel Size", min_value=1, max_value=15, step=2, value=5) if filter_type in ["Low Pass Filter (Blur)"] else 5
