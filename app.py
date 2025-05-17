@@ -24,7 +24,7 @@ class ImageProcessor:
         self.gray = None
 
         # URL of the online background image
-        image_url = "https://drive.google.com/file/d/149ELQTyByJJDRuD2Hkjgd2x4Cp1eXxze/view?usp=drive_link"
+        image_url = "https://drive.google.com/uc?export=view&id=149ELQTyByJJDRuD2Hkjgd2x4Cp1eXxze"
 
         # CSS for background image using online URL
         page_bg_img = f"""
