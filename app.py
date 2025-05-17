@@ -318,7 +318,7 @@ class ImageProcessor:
             subtask = st.selectbox("Choose Task", ["Brightness & Contrast", "Histogram", "Histogram Equalization"])
             if subtask == "Brightness & Contrast":
                 alpha = st.slider("Contrast (alpha)", 0.5, 3.0, 1.0)
-                beta = st.slider("Brightness (beta)", - INSTALL_FAILED_INSUFFICIENT_STORAGE100, 100, 0)
+                beta = st.slider("Brightness (beta)", -100, 100, 0)  # Fixed the typo here
                 adjusted = self.adjust_brightness_contrast(alpha, beta)
                 st.image(adjusted, caption="Brightness & Contrast Adjusted", use_container_width=True)
                 image_bytes, filename, error = self.prepare_image_download(adjusted, "brightness_contrast")
