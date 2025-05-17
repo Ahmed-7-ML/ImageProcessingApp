@@ -31,6 +31,8 @@ class ImageProcessor:
             background-image: url("{image_url}");
             background-size: cover;
             background-repeat: no-repeat;
+            background-position: center;
+            min-height: 100vh;
         }}
         [data-testid="stHeader"] {{
             background-color: rgba(0, 0, 0, 0);
